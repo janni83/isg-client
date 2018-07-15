@@ -1,0 +1,39 @@
+{
+  "name": "isg-client",
+  "version": "0.0.1",
+  "description": "An HTTP client for accessing the Internet Services Gateway (ISG) API to control heat pumps of Stiebel Eltron / Tecalor",
+  "scripts": {
+    "build": "parcel build ./lib/isg-client.js --out-file isg-client-dist.js --no-source-maps --target node && parcel build ./lib/isg-client.js --no-source-maps --no-minify --target node",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "isg",
+    "lwz",
+    "thz",
+    "tecalor",
+    "stiebel",
+    "eltron",
+    "api",
+    "client"
+  ],
+  "author": "Jan Stock",
+  "license": "MIT",
+  "main": "./dist/isg-client-dist.js",
+  "files": [
+    "./dist"
+  ],
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.5",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.12.0"
+  }
+}
