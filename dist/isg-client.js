@@ -141,7 +141,7 @@ module.exports = {
     },
     BASIC_SETTINGS: {
       PERCENT_POWER: new Parameter({ name: 'val411', min: 30, max: 50 }),
-      HYST_VORLAUF: new Parameter({ name: 'val105', min: 0, max: 3 })
+      HYST_FLOW_TEMP: new Parameter({ name: 'val105', min: 0, max: 3 })
     }
   },
   VENTILATION: {
@@ -176,7 +176,9 @@ const basePostOptions = {
 };
 
 const INFO_PAGE_QUERY = { s: '1,0' };
+const DIAGNOSIS_STATUS_PAGE_QUERY = { s: '2,0' };
 const TEXT_RELATIVE_HUMIDITY_HC2 = 'RELATIVE HUMIDITY HC2';
+const TEXT_COOLING = 'COOLING';
 
 class IsgApi {
   constructor({ url, username, password }) {
@@ -227,6 +229,16 @@ class IsgApi {
     return this.verifyLoggedIn().then(() => request.get(requestOpts)).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text()).then(value => value.trim().substr(0, value.length - 1).replace(',', '.')).then(value => parseFloat(value));
   }
 
+  fetchIsCoolingActive() {
+    const requestOpts = {
+      url: this.url,
+      headers: BASE_HEADERS,
+      qs: DIAGNOSIS_STATUS_PAGE_QUERY
+    };
+
+    return this.verifyLoggedIn().then(() => request.get(requestOpts)).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_COOLING)).then(elems => elems.length === 1);
+  }
+
   setParameter({ name, value }) {
     return this.verifyLoggedIn().then(() => {
       const options = _extends({
@@ -239,6 +251,9 @@ class IsgApi {
   }
 
   verifyLoggedIn() {
+    if (!this.username && !this.password) {
+      return Promise.resolve();
+    }
     if (this.session) {
       return Promise.resolve();
     }

@@ -20,7 +20,7 @@
   "license": "MIT",
   "main": "./dist/isg-client-dist.js",
   "files": [
-    "./dist"
+    "dist"
   ],
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
