@@ -132,6 +132,12 @@ class Parameter {
 }
 
 module.exports = {
+  PAGES: {
+    DIAGNOSIS: {
+      STATUS: '2,0'
+    }
+  },
+  LANGUAGE: new Parameter({ name: 'valspracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] }),
   COOLING: {
     HC2: {
       ENABLED: new Parameter({ name: 'val74', values: ['1', '0'] }),
@@ -139,8 +145,8 @@ module.exports = {
       TEMPERATURE: new Parameter({ name: 'val104' }),
       HYST_ROOM_TEMP: new Parameter({ name: 'val108' })
     },
-    BASIC_SETTINGS: {
-      PERCENT_POWER: new Parameter({ name: 'val411', min: 30, max: 50 }),
+    STANDARD_SETTING: {
+      PERCENT_CAPACITY: new Parameter({ name: 'val411', min: 30, max: 50 }),
       HYST_FLOW_TEMP: new Parameter({ name: 'val105', min: 0, max: 3 })
     }
   },
@@ -154,7 +160,32 @@ module.exports = {
     }
   }
 };
-},{}],"f9KS":[function(require,module,exports) {
+},{}],"qQCB":[function(require,module,exports) {
+const cheerio = require('cheerio');
+const { COOLING, PAGES } = require('../constants');
+
+const TEXT_COOLING = 'COOLING';
+
+class CoolingModule {
+  constructor(isgClient) {
+    this.isgClient = isgClient;
+  }
+
+  setCoolingEnabledHC2(enabled) {
+    return this.isgClient.setParameter(COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
+  }
+
+  setCoolingCapacity(percent) {
+    return this.isgClient.setParameter(COOLING.STANDARD_SETTING.PERCENT_CAPACITY.forRequest(percent));
+  }
+
+  fetchIsCoolingActive() {
+    return this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING)).then(elems => elems.length === 1);
+  }
+}
+
+module.exports = CoolingModule;
+},{"../constants":"iJA9"}],"f9KS":[function(require,module,exports) {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const request = require('request-promise-native').defaults({
@@ -163,32 +194,37 @@ const request = require('request-promise-native').defaults({
 });
 const uuid = require('uuid/v4');
 const cheerio = require('cheerio');
-const { COOLING, VENTILATION } = require('./constants');
+const CoolingModule = require('./modules/cooling');
+const { VENTILATION, LANGUAGE } = require('./constants');
 
 const BASE_HEADERS = {
   Cookie: `PHPSESSID=${uuid()}`,
   Connection: 'keep-alive'
 };
 
-const basePostOptions = {
+const BASE_POST_OPTIONS = {
   method: 'POST',
   headers: BASE_HEADERS
 };
 
-const INFO_PAGE_QUERY = { s: '1,0' };
-const DIAGNOSIS_STATUS_PAGE_QUERY = { s: '2,0' };
+const INFO_SYSTEM_PAGE = '1,0';
+const LANGUAGE_PAGE = '5,3';
 const TEXT_RELATIVE_HUMIDITY_HC2 = 'RELATIVE HUMIDITY HC2';
-const TEXT_COOLING = 'COOLING';
 
-class IsgApi {
-  constructor({ url, username, password }) {
+class IsgClient {
+  constructor({
+    url, username, password, version
+  }) {
     this.url = url;
     this.username = username;
     this.password = password;
+    this.version = version;
+    this.languageSet = false;
     this.baseSaveOptions = _extends({
       url: `${this.url}/save.php`,
       json: true
-    }, basePostOptions);
+    }, BASE_POST_OPTIONS);
+    this.cooling = new CoolingModule(this);
   }
 
   login() {
@@ -199,7 +235,7 @@ class IsgApi {
         user: this.username,
         pass: this.password
       }
-    }, basePostOptions);
+    }, BASE_POST_OPTIONS);
     return request(options).then(() => {
       this.session = { date: new Date() };
     }).catch(() => {
@@ -207,36 +243,20 @@ class IsgApi {
     });
   }
 
-  enableCoolingHK2(enabled) {
-    return this.setParameter(COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
-  }
-
-  setCoolingPowerPercent(percent) {
-    return this.setParameter(COOLING.BASIC_SETTINGS.PERCENT_POWER.forRequest(percent));
-  }
-
   setVentilationDay(stage) {
     return this.setParameter(VENTILATION.STAGES.DAY.forRequest(stage));
   }
 
-  fetchHumidityHC2() {
-    const requestOpts = {
-      url: this.url,
-      headers: BASE_HEADERS,
-      qs: INFO_PAGE_QUERY
-    };
-
-    return this.verifyLoggedIn().then(() => request.get(requestOpts)).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text()).then(value => value.trim().substr(0, value.length - 1).replace(',', '.')).then(value => parseFloat(value));
+  switchLanguageToEnglish() {
+    return this.setParameter(LANGUAGE.forRequest('ENGLISH'));
   }
 
-  fetchIsCoolingActive() {
-    const requestOpts = {
-      url: this.url,
-      headers: BASE_HEADERS,
-      qs: DIAGNOSIS_STATUS_PAGE_QUERY
-    };
+  fetchLanguage() {
+    return this.fetchPage(LANGUAGE_PAGE).then(body => cheerio.load(body)).then($ => $('#avalspracheeinstellung').attr('value'));
+  }
 
-    return this.verifyLoggedIn().then(() => request.get(requestOpts)).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_COOLING)).then(elems => elems.length === 1);
+  fetchHumidityHC2() {
+    return this.fetchPage(INFO_SYSTEM_PAGE).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text()).then(value => value.trim().substr(0, value.length - 1).replace(',', '.')).then(value => parseFloat(value));
   }
 
   setParameter({ name, value }) {
@@ -250,6 +270,17 @@ class IsgApi {
     }).then(({ success, message }) => success ? message : new Error(message));
   }
 
+  fetchPage(page) {
+    const requestOpts = {
+      url: this.url,
+      headers: BASE_HEADERS,
+      qs: {
+        s: page
+      }
+    };
+    return this.verifyLoggedIn().then(() => this.verifyEnglishLanguage()).then(() => request.get(requestOpts));
+  }
+
   verifyLoggedIn() {
     if (!this.username && !this.password) {
       return Promise.resolve();
@@ -259,7 +290,18 @@ class IsgApi {
     }
     return this.login();
   }
+
+  verifyEnglishLanguage() {
+    if (this.languageSet) {
+      return Promise.resolve();
+    }
+    return this.switchLanguageToEnglish().then(() => {
+      this.languageSet = true;
+    }).catch(error => {
+      throw new Error(`failed to set language to english: ${error}`);
+    });
+  }
 }
 
-module.exports = IsgApi;
-},{"./constants":"iJA9"}]},{},["f9KS"], null)
+module.exports = IsgClient;
+},{"./modules/cooling":"qQCB","./constants":"iJA9"}]},{},["f9KS"], null)
