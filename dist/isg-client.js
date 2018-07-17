@@ -106,9 +106,9 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"iJA9":[function(require,module,exports) {
 class Parameter {
   constructor({
-    name, values, min, max
+    id, values, min, max
   }) {
-    this.name = name;
+    this.id = id;
     this.values = values;
     this.min = min;
     this.max = max;
@@ -116,16 +116,16 @@ class Parameter {
 
   forRequest(value) {
     if (this.values && this.values.indexOf(value) === -1) {
-      throw new Error(`'${value}' is not a valid value for parameter ${this.name}`);
+      throw new Error(`'${value}' is not a valid value for parameter ${this.id}`);
     }
     if (this.min != null && value < this.min) {
-      throw new Error(`'${value}' is below min value of '${this.min}' for parameter ${this.name}`);
+      throw new Error(`'${value}' is below min value of '${this.min}' for parameter ${this.id}`);
     }
     if (this.max != null && value > this.max) {
-      throw new Error(`'${value}' is above max value of '${this.max}' for parameter ${this.name}`);
+      throw new Error(`'${value}' is above max value of '${this.max}' for parameter ${this.id}`);
     }
     return {
-      name: this.name,
+      name: `val${this.id}`,
       value: `${value}`
     };
   }
@@ -135,52 +135,64 @@ module.exports = {
   PAGES: {
     DIAGNOSIS: {
       STATUS: '2,0'
+    },
+    COOLING: {
+      STANDARD_SETTING: '4,3,4'
     }
   },
-  LANGUAGE: new Parameter({ name: 'valspracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] }),
+  LANGUAGE: new Parameter({ id: 'spracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] }),
   COOLING: {
     HC2: {
-      ENABLED: new Parameter({ name: 'val74', values: ['1', '0'] }),
-      TYPE: new Parameter({ name: 'val190', values: ['1', '0'] }),
-      TEMPERATURE: new Parameter({ name: 'val104' }),
-      HYST_ROOM_TEMP: new Parameter({ name: 'val108' })
+      ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
+      TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
+      TEMPERATURE: new Parameter({ id: '104' }),
+      HYST_ROOM_TEMP: new Parameter({ id: '108' })
     },
     STANDARD_SETTING: {
-      PERCENT_CAPACITY: new Parameter({ name: 'val411', min: 30, max: 50 }),
-      HYST_FLOW_TEMP: new Parameter({ name: 'val105', min: 0, max: 3 })
+      PERCENT_CAPACITY: new Parameter({ id: '411', min: 30, max: 50 }),
+      HYST_FLOW_TEMP: new Parameter({ id: '105', min: 0, max: 3 })
     }
   },
   VENTILATION: {
     STAGES: {
-      DAY: new Parameter({ name: 'val82', values: ['0', '1', '2', '3'] }),
-      NIGHT: new Parameter({ name: 'val83', values: ['0', '1', '2', '3'] }),
-      STANDBY: new Parameter({ name: 'val84', values: ['0', '1', '2', '3'] }),
-      PARTY: new Parameter({ name: 'val85', values: ['0', '1', '2', '3'] }),
-      MANUAL: new Parameter({ name: 'val88', values: ['0', '1', '2', '3'] })
+      DAY: new Parameter({ id: '82', values: ['0', '1', '2', '3'] }),
+      NIGHT: new Parameter({ id: '83', values: ['0', '1', '2', '3'] }),
+      STANDBY: new Parameter({ id: '84', values: ['0', '1', '2', '3'] }),
+      PARTY: new Parameter({ id: '85', values: ['0', '1', '2', '3'] }),
+      MANUAL: new Parameter({ id: '88', values: ['0', '1', '2', '3'] })
     }
   }
 };
 },{}],"qQCB":[function(require,module,exports) {
-const cheerio = require('cheerio');
 const { COOLING, PAGES } = require('../constants');
 
 const TEXT_COOLING = 'COOLING';
+const REGEX_VALUE_CAPACITY = new RegExp(`\\['${COOLING.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);
 
 class CoolingModule {
   constructor(isgClient) {
     this.isgClient = isgClient;
   }
 
-  setCoolingEnabledHC2(enabled) {
+  setEnabledHC2(enabled) {
     return this.isgClient.setParameter(COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
   }
 
-  setCoolingCapacity(percent) {
+  setCapacity(percent) {
     return this.isgClient.setParameter(COOLING.STANDARD_SETTING.PERCENT_CAPACITY.forRequest(percent));
   }
 
-  fetchIsCoolingActive() {
-    return this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING)).then(elems => elems.length === 1);
+  // cooling is active if operating status and processes contain 'COOLING'
+  async fetchIsActive() {
+    const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
+    const matchingElements = $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING);
+    return matchingElements.length >= 2;
+  }
+
+  async fetchCapacity() {
+    const $ = await this.isgClient.fetchPage(PAGES.COOLING.STANDARD_SETTING);
+    const matches = REGEX_VALUE_CAPACITY.exec($.html())[1];
+    return parseInt(matches, 10);
   }
 }
 
@@ -251,12 +263,16 @@ class IsgClient {
     return this.setParameter(LANGUAGE.forRequest('ENGLISH'));
   }
 
-  fetchLanguage() {
-    return this.fetchPage(LANGUAGE_PAGE).then(body => cheerio.load(body)).then($ => $('#avalspracheeinstellung').attr('value'));
+  async fetchLanguage() {
+    const $ = await this.fetchPage(LANGUAGE_PAGE);
+    return $(`#a${LANGUAGE.forRequest().name}`).val();
   }
 
-  fetchHumidityHC2() {
-    return this.fetchPage(INFO_SYSTEM_PAGE).then(body => cheerio.load(body)).then($ => $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text()).then(value => value.trim().substr(0, value.length - 1).replace(',', '.')).then(value => parseFloat(value));
+  async fetchHumidityHC2() {
+    const $ = await this.fetchPage(INFO_SYSTEM_PAGE);
+    const humidityText = $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text();
+    const humdityStrValue = humidityText.trim().substr(0, humidityText.length - 1).replace(',', '.');
+    return parseFloat(humdityStrValue);
   }
 
   setParameter({ name, value }) {
@@ -270,7 +286,7 @@ class IsgClient {
     }).then(({ success, message }) => success ? message : new Error(message));
   }
 
-  fetchPage(page) {
+  async fetchPage(page) {
     const requestOpts = {
       url: this.url,
       headers: BASE_HEADERS,
@@ -278,7 +294,10 @@ class IsgClient {
         s: page
       }
     };
-    return this.verifyLoggedIn().then(() => this.verifyEnglishLanguage()).then(() => request.get(requestOpts));
+    await this.verifyLoggedIn();
+    await this.verifyEnglishLanguage();
+    const html = await request.get(requestOpts);
+    return cheerio.load(html);
   }
 
   verifyLoggedIn() {
