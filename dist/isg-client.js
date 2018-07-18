@@ -104,6 +104,11 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   // Override the current require with this new one
   return newRequire;
 })({"iJA9":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 class Parameter {
   constructor({
     id, values, min, max
@@ -131,43 +136,70 @@ class Parameter {
   }
 }
 
-module.exports = {
-  PAGES: {
-    DIAGNOSIS: {
-      STATUS: '2,0'
-    },
-    COOLING: {
-      STANDARD_SETTING: '4,3,4'
-    }
+const PAGES = {
+  DIAGNOSIS: {
+    STATUS: '2,0'
   },
-  LANGUAGE: new Parameter({ id: 'spracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] }),
   COOLING: {
-    HC2: {
-      ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
-      TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
-      TEMPERATURE: new Parameter({ id: '104' }),
-      HYST_ROOM_TEMP: new Parameter({ id: '108' })
-    },
-    STANDARD_SETTING: {
-      PERCENT_CAPACITY: new Parameter({ id: '411', min: 30, max: 50 }),
-      HYST_FLOW_TEMP: new Parameter({ id: '105', min: 0, max: 3 })
-    }
-  },
-  VENTILATION: {
-    STAGES: {
-      DAY: new Parameter({ id: '82', values: ['0', '1', '2', '3'] }),
-      NIGHT: new Parameter({ id: '83', values: ['0', '1', '2', '3'] }),
-      STANDBY: new Parameter({ id: '84', values: ['0', '1', '2', '3'] }),
-      PARTY: new Parameter({ id: '85', values: ['0', '1', '2', '3'] }),
-      MANUAL: new Parameter({ id: '88', values: ['0', '1', '2', '3'] })
-    }
+    STANDARD_SETTING: '4,3,4'
   }
 };
+
+const LANGUAGE = new Parameter({ id: 'spracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] });
+
+const COOLING = {
+  HC2: {
+    ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
+    TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
+    TEMPERATURE: new Parameter({ id: '104' }),
+    HYST_ROOM_TEMP: new Parameter({ id: '108' })
+  },
+  STANDARD_SETTING: {
+    PERCENT_CAPACITY: new Parameter({ id: '411', min: 30, max: 50 }),
+    HYST_FLOW_TEMP: new Parameter({ id: '105', min: 0, max: 3 })
+  }
+};
+
+const VENTILATION = {
+  STAGES: {
+    DAY: new Parameter({ id: '82', values: ['0', '1', '2', '3'] }),
+    NIGHT: new Parameter({ id: '83', values: ['0', '1', '2', '3'] }),
+    STANDBY: new Parameter({ id: '84', values: ['0', '1', '2', '3'] }),
+    MANUAL: new Parameter({ id: '88', values: ['0', '1', '2', '3'] }),
+    PARTY: new Parameter({ id: '85', values: ['0', '1', '2', '3'] })
+  }
+};
+
+exports.PAGES = PAGES;
+exports.LANGUAGE = LANGUAGE;
+exports.COOLING = COOLING;
+exports.VENTILATION = VENTILATION;
+},{}],"Y/Oq":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+const lazyCreateModule = (object, propertyName, constructor) => {
+  if (!object[propertyName]) {
+    // eslint-disable-next-line no-param-reassign
+    object[propertyName] = new constructor(object);
+  }
+  return object[propertyName];
+};
+
+exports.default = lazyCreateModule;
 },{}],"qQCB":[function(require,module,exports) {
-const { COOLING, PAGES } = require('../constants');
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _constants = require('../constants');
 
 const TEXT_COOLING = 'COOLING';
-const REGEX_VALUE_CAPACITY = new RegExp(`\\['${COOLING.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);
+const REGEX_VALUE_CAPACITY = new RegExp(`\\['${_constants.COOLING.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);
 
 class CoolingModule {
   constructor(isgClient) {
@@ -175,42 +207,93 @@ class CoolingModule {
   }
 
   setEnabledHC2(enabled) {
-    return this.isgClient.setParameter(COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
+    return this.isgClient.setParameter(_constants.COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
   }
 
   setCapacity(percent) {
-    return this.isgClient.setParameter(COOLING.STANDARD_SETTING.PERCENT_CAPACITY.forRequest(percent));
+    return this.isgClient.setParameter(_constants.COOLING.STANDARD_SETTING.PERCENT_CAPACITY.forRequest(percent));
   }
 
   // cooling is active if operating status and processes contain 'COOLING'
   async fetchIsActive() {
-    const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
+    const $ = await this.isgClient.fetchPage(_constants.PAGES.DIAGNOSIS.STATUS);
     const matchingElements = $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING);
     return matchingElements.length >= 2;
   }
 
+  // capacity value cannot be read from an html element; have to do a regex search on js code
   async fetchCapacity() {
-    const $ = await this.isgClient.fetchPage(PAGES.COOLING.STANDARD_SETTING);
+    const $ = await this.isgClient.fetchPage(_constants.PAGES.COOLING.STANDARD_SETTING);
     const matches = REGEX_VALUE_CAPACITY.exec($.html())[1];
     return parseInt(matches, 10);
   }
 }
 
-module.exports = CoolingModule;
+exports.default = CoolingModule;
+},{"../constants":"iJA9"}],"Qy/x":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _constants = require('../constants');
+
+class VentilationModule {
+  constructor(isgClient) {
+    this.isgClient = isgClient;
+  }
+
+  setDayStage(stage) {
+    return this.isgClient.setParameter(_constants.VENTILATION.STAGES.DAY.forRequest(stage));
+  }
+}
+
+exports.default = VentilationModule;
 },{"../constants":"iJA9"}],"f9KS":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const request = require('request-promise-native').defaults({
+var _requestPromiseNative = require('request-promise-native');
+
+var _requestPromiseNative2 = _interopRequireDefault(_requestPromiseNative);
+
+var _v = require('uuid/v4');
+
+var _v2 = _interopRequireDefault(_v);
+
+var _cheerio = require('cheerio');
+
+var _cheerio2 = _interopRequireDefault(_cheerio);
+
+var _constants = require('./constants');
+
+var _util = require('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _cooling = require('./modules/cooling');
+
+var _cooling2 = _interopRequireDefault(_cooling);
+
+var _ventilation = require('./modules/ventilation');
+
+var _ventilation2 = _interopRequireDefault(_ventilation);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const localRequest = _requestPromiseNative2.default.defaults({
   forever: true,
   jar: true
 });
-const uuid = require('uuid/v4');
-const cheerio = require('cheerio');
-const CoolingModule = require('./modules/cooling');
-const { VENTILATION, LANGUAGE } = require('./constants');
 
 const BASE_HEADERS = {
-  Cookie: `PHPSESSID=${uuid()}`,
+  Cookie: `PHPSESSID=${(0, _v2.default)()}`,
   Connection: 'keep-alive'
 };
 
@@ -222,11 +305,15 @@ const BASE_POST_OPTIONS = {
 const INFO_SYSTEM_PAGE = '1,0';
 const LANGUAGE_PAGE = '5,3';
 const TEXT_RELATIVE_HUMIDITY_HC2 = 'RELATIVE HUMIDITY HC2';
+const DEFAULT_CONSTRUCTOR_ARGS = {
+  url: 'http://servicewelt',
+  version: '2.1'
+};
 
 class IsgClient {
   constructor({
     url, username, password, version
-  }) {
+  } = DEFAULT_CONSTRUCTOR_ARGS) {
     this.url = url;
     this.username = username;
     this.password = password;
@@ -236,7 +323,20 @@ class IsgClient {
       url: `${this.url}/save.php`,
       json: true
     }, BASE_POST_OPTIONS);
-    this.cooling = new CoolingModule(this);
+  }
+
+  /**
+   * @returns {CoolingModule}
+   */
+  cooling() {
+    return (0, _util2.default)(this, 'coolingModule', _cooling2.default);
+  }
+
+  /**
+   * @returns {VentilationModule}
+   */
+  ventilation() {
+    return (0, _util2.default)(this, 'ventilationModule', _ventilation2.default);
   }
 
   login() {
@@ -248,24 +348,20 @@ class IsgClient {
         pass: this.password
       }
     }, BASE_POST_OPTIONS);
-    return request(options).then(() => {
+    return localRequest(options).then(() => {
       this.session = { date: new Date() };
     }).catch(() => {
       this.session = null;
     });
   }
 
-  setVentilationDay(stage) {
-    return this.setParameter(VENTILATION.STAGES.DAY.forRequest(stage));
-  }
-
   switchLanguageToEnglish() {
-    return this.setParameter(LANGUAGE.forRequest('ENGLISH'));
+    return this.setParameter(_constants.LANGUAGE.forRequest('ENGLISH'));
   }
 
   async fetchLanguage() {
     const $ = await this.fetchPage(LANGUAGE_PAGE);
-    return $(`#a${LANGUAGE.forRequest().name}`).val();
+    return $(`#a${_constants.LANGUAGE.forRequest().name}`).val();
   }
 
   async fetchHumidityHC2() {
@@ -275,15 +371,18 @@ class IsgClient {
     return parseFloat(humdityStrValue);
   }
 
-  setParameter({ name, value }) {
-    return this.verifyLoggedIn().then(() => {
-      const options = _extends({
-        form: {
-          data: JSON.stringify([{ name, value }])
-        }
-      }, this.baseSaveOptions);
-      return request(options);
-    }).then(({ success, message }) => success ? message : new Error(message));
+  async setParameter({ name, value }) {
+    await this.verifyLoggedIn();
+    const options = _extends({
+      form: {
+        data: JSON.stringify([{ name, value }])
+      }
+    }, this.baseSaveOptions);
+    const { success, message } = await localRequest(options);
+    if (success) {
+      return message;
+    }
+    throw new Error(message);
   }
 
   async fetchPage(page) {
@@ -296,8 +395,8 @@ class IsgClient {
     };
     await this.verifyLoggedIn();
     await this.verifyEnglishLanguage();
-    const html = await request.get(requestOpts);
-    return cheerio.load(html);
+    const html = await localRequest.get(requestOpts);
+    return _cheerio2.default.load(html);
   }
 
   verifyLoggedIn() {
@@ -322,5 +421,5 @@ class IsgClient {
   }
 }
 
-module.exports = IsgClient;
-},{"./modules/cooling":"qQCB","./constants":"iJA9"}]},{},["f9KS"], null)
+exports.default = IsgClient;
+},{"./constants":"iJA9","./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x"}]},{},["f9KS"], null)

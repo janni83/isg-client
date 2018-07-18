@@ -12,9 +12,17 @@ Use at your own risk! Invalid parameters may damage your heat pump.
 
 Right now only what I need:
 
-- Cooling: standard setting, cooling mode HC2
-- Ventilation: ventilation stages
+- Cooling: 
+  - change standard settings
+  - change cooling mode on HC2
+- Ventilation:
+  - change ventilation stages
 - ... plan to add the remaining settings later
+
+## Reading Heat Pump Values
+
+There is no clean API to read values available.
+Therefor I do html and regex look ups to read values like i.e. if cooling is active.
 
 ## Usage
 
@@ -30,5 +38,10 @@ const isg = new IsgClient({
 // fetch relative humidity from HC2, done via html lookup
 isg.fetchHumidityHC2()
   .then(humidity => console.log(`humidity HC2 is ${humidity}`))
+  .catch(console.error);
+
+// set day ventilation stage to 3
+isg.setVentilationDay(3)
+  .then(() => console.log('ventilation day stage updated to 3'))
   .catch(console.error);
 ```
