@@ -103,7 +103,22 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   // Override the current require with this new one
   return newRequire;
-})({"iJA9":[function(require,module,exports) {
+})({"Y/Oq":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+const lazyCreateModule = (object, propertyName, constructor) => {
+  if (!object[propertyName]) {
+    // eslint-disable-next-line no-param-reassign
+    object[propertyName] = new constructor(object);
+  }
+  return object[propertyName];
+};
+
+exports.default = lazyCreateModule;
+},{}],"iJA9":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -119,7 +134,7 @@ class Parameter {
     this.max = max;
   }
 
-  forRequest(value) {
+  withValue(value) {
     if (this.values && this.values.indexOf(value) === -1) {
       throw new Error(`'${value}' is not a valid value for parameter ${this.id}`);
     }
@@ -137,22 +152,69 @@ class Parameter {
 }
 
 const PAGES = {
+  INFO: {
+    SYSTEM: '1,0'
+  },
   DIAGNOSIS: {
     STATUS: '2,0'
   },
   COOLING: {
     STANDARD_SETTING: '4,3,4'
-  }
+  },
+  LANGUAGE: '5,3'
 };
 
 const LANGUAGE = new Parameter({ id: 'spracheeinstellung', values: ['DEUTSCH', 'ENGLISH'] });
 
-const COOLING = {
+const HEATING = {
+  HC1: {
+    TEMPERATURE: {
+      TEMP_DAY: new Parameter({ id: '5', min: 10, max: 30 }),
+      TEMP_NIGHT: new Parameter({ id: '7', min: 10, max: 30 }),
+      TEMP_STANDBY: new Parameter({ id: '58', min: 10, max: 30 }),
+      TEMP_MANUAL: new Parameter({ id: '54', min: 10, max: 30 })
+    }
+  },
   HC2: {
-    ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
-    TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
-    TEMPERATURE: new Parameter({ id: '104' }),
-    HYST_ROOM_TEMP: new Parameter({ id: '108' })
+    TEMPERATURE: {
+      TEMP_DAY: new Parameter({ id: '6', min: 10, max: 30 }),
+      TEMP_NIGHT: new Parameter({ id: '8', min: 10, max: 30 }),
+      TEMP_STANDBY: new Parameter({ id: '59', min: 10, max: 30 }),
+      TEMP_MANUAL: new Parameter({ id: '55', min: 10, max: 30 })
+    }
+  },
+  STANDARD_SETTING: {
+    PROP_COMP: new Parameter({ id: '431', min: 0, max: 10 }),
+    INTEGRAL_COMPONENT: new Parameter({ id: '432', min: 0, max: 500 }),
+    MAX_BH_STAGES: new Parameter({ id: '130', min: 0, max: 3 }),
+    MAX_FLOW_TEMP: new Parameter({ id: '21', min: 10, max: 75 }),
+    SUMMER_MODE: new Parameter({ id: '40', min: 10, max: 25 }),
+    HYST_SUMMER_MODE: new Parameter({ id: '133', min: 1, max: 7 }),
+    DUAL_MODE_HEAT: new Parameter({ id: '64', min: -20, max: 10 }),
+    BOOSTER_TIMEOUT: new Parameter({ id: '131', min: 0, max: 60 }),
+    OUTSIDE_T_CORRECTION: new Parameter({ id: '134', min: -20, max: 30 }),
+    SUPPR_TEMP_MEASURE: new Parameter({ id: '187', min: 0, max: 120 }),
+    HEATING_SYS_TEMP_SIZING: new Parameter({ id: '433', min: -25, max: 5 }),
+    HEATING_SYS_OUTPUT_SIZING: new Parameter({ id: '434', min: 40, max: 100 })
+  }
+};
+
+const COOLING = {
+  HC1: {
+    MODE: {
+      ENABLED: new Parameter({ id: '73', values: ['1', '0'] }),
+      TYPE: new Parameter({ id: '189', values: ['1', '0'] }),
+      TEMPERATURE: new Parameter({ id: '103' }),
+      HYST_ROOM_TEMP: new Parameter({ id: '107' })
+    }
+  },
+  HC2: {
+    MODE: {
+      ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
+      TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
+      TEMPERATURE: new Parameter({ id: '104' }),
+      HYST_ROOM_TEMP: new Parameter({ id: '108' })
+    }
   },
   STANDARD_SETTING: {
     PERCENT_CAPACITY: new Parameter({ id: '411', min: 30, max: 50 }),
@@ -161,34 +223,54 @@ const COOLING = {
 };
 
 const VENTILATION = {
-  STAGES: {
+  STAGE: {
     DAY: new Parameter({ id: '82', values: ['0', '1', '2', '3'] }),
     NIGHT: new Parameter({ id: '83', values: ['0', '1', '2', '3'] }),
     STANDBY: new Parameter({ id: '84', values: ['0', '1', '2', '3'] }),
     MANUAL: new Parameter({ id: '88', values: ['0', '1', '2', '3'] }),
     PARTY: new Parameter({ id: '85', values: ['0', '1', '2', '3'] })
+  },
+  FLOW_RATE: {
+    FAN_STAGE_VENT_AIR_1: new Parameter({ id: '91', min: 10, max: 300 }),
+    FAN_STAGE_VENT_AIR_2: new Parameter({ id: '92', min: 80, max: 300 }),
+    FAN_STAGE_VENT_AIR_3: new Parameter({ id: '93', min: 80, max: 300 }),
+    FAN_STAGE_EXTRACT_AIR_1: new Parameter({ id: '94', min: 10, max: 300 }),
+    FAN_STAGE_EXTRACT_AIR_2: new Parameter({ id: '95', min: 10, max: 300 }),
+    FAN_STAGE_EXTRACT_AIR_3: new Parameter({ id: '96', min: 10, max: 300 })
+  }
+};
+
+const DHW = {
+  TEMPERATURE: {
+    DAY: new Parameter({ id: '17', min: 10, max: 65 }),
+    NIGHT: new Parameter({ id: '161', min: 10, max: 65 }),
+    STANDBY: new Parameter({ id: '102', min: 10, max: 65 }),
+    MANUAL: new Parameter({ id: '101', min: 10, max: 65 })
+  },
+  STANDARD_SETTING: {
+    HYSTERESIS: new Parameter({ id: '60', min: 2, max: 10 }),
+    BOOSTER_TIMEOUT: new Parameter({ id: '111', min: 0, max: 360 }),
+    BOOSTER_T_ACTIVATE: new Parameter({ id: '112', min: -10, max: 10 }),
+    PASTEURISATION: new Parameter({ id: '109', min: 1, max: 30 }),
+    MAX_DHW_HTG_DURATION: new Parameter({ id: '62', min: 6, max: 12 }),
+    PASTEUR_TEMP: new Parameter({ id: '110', min: 10, max: 65 }),
+    DHW_BOOSTER_STAGE: new Parameter({ id: '113', min: 1, max: 3 }),
+    DHW_BUFFER_MODE: new Parameter({ id: '114', values: ['0', '1'] }),
+    MAX_FLOW_TEMP: new Parameter({ id: '115', min: 10, max: 75 }),
+    DHW_ECO: new Parameter({ id: '116', values: ['0', '1'] }),
+    DHW_OUTPUT_SUMMER: new Parameter({ id: '420', min: 30, max: 100 }),
+    DHW_OUTPUT_WINTER: new Parameter({ id: '421', min: 30, max: 100 }),
+    INTEGRAL_SENSOR: new Parameter({ id: '422', values: ['0', '1'] }),
+    SECOND_DHW_CYLINDER: new Parameter({ id: '423', values: ['0', '1'] })
   }
 };
 
 exports.PAGES = PAGES;
 exports.LANGUAGE = LANGUAGE;
+exports.HEATING = HEATING;
 exports.COOLING = COOLING;
 exports.VENTILATION = VENTILATION;
-},{}],"Y/Oq":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-const lazyCreateModule = (object, propertyName, constructor) => {
-  if (!object[propertyName]) {
-    // eslint-disable-next-line no-param-reassign
-    object[propertyName] = new constructor(object);
-  }
-  return object[propertyName];
-};
-
-exports.default = lazyCreateModule;
+exports.DHW = DHW;
 },{}],"qQCB":[function(require,module,exports) {
 'use strict';
 
@@ -207,11 +289,11 @@ class CoolingModule {
   }
 
   setEnabledHC2(enabled) {
-    return this.isgClient.setParameter(_constants.COOLING.HC2.ENABLED.forRequest(enabled ? '1' : '0'));
+    return this.isgClient.setParameter(_constants.COOLING.HC2.MODE.ENABLED.withValue(enabled ? '1' : '0'));
   }
 
   setCapacity(percent) {
-    return this.isgClient.setParameter(_constants.COOLING.STANDARD_SETTING.PERCENT_CAPACITY.forRequest(percent));
+    return this.isgClient.setParameter(_constants.COOLING.STANDARD_SETTING.PERCENT_CAPACITY.withValue(percent));
   }
 
   // cooling is active if operating status and processes contain 'COOLING'
@@ -245,7 +327,7 @@ class VentilationModule {
   }
 
   setDayStage(stage) {
-    return this.isgClient.setParameter(_constants.VENTILATION.STAGES.DAY.forRequest(stage));
+    return this.isgClient.setParameter(_constants.VENTILATION.STAGE.DAY.withValue(stage));
   }
 }
 
@@ -256,6 +338,7 @@ exports.default = VentilationModule;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.DHW = exports.COOLING = exports.LANGUAGE = exports.HEATING = exports.PAGES = exports.VENTILATION = exports.IsgClient = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -271,8 +354,6 @@ var _cheerio = require('cheerio');
 
 var _cheerio2 = _interopRequireDefault(_cheerio);
 
-var _constants = require('./constants');
-
 var _util = require('./util');
 
 var _util2 = _interopRequireDefault(_util);
@@ -284,6 +365,8 @@ var _cooling2 = _interopRequireDefault(_cooling);
 var _ventilation = require('./modules/ventilation');
 
 var _ventilation2 = _interopRequireDefault(_ventilation);
+
+var _constants = require('./constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -302,8 +385,6 @@ const BASE_POST_OPTIONS = {
   headers: BASE_HEADERS
 };
 
-const INFO_SYSTEM_PAGE = '1,0';
-const LANGUAGE_PAGE = '5,3';
 const TEXT_RELATIVE_HUMIDITY_HC2 = 'RELATIVE HUMIDITY HC2';
 const DEFAULT_CONSTRUCTOR_ARGS = {
   url: 'http://servicewelt',
@@ -356,16 +437,16 @@ class IsgClient {
   }
 
   switchLanguageToEnglish() {
-    return this.setParameter(_constants.LANGUAGE.forRequest('ENGLISH'));
+    return this.setParameter(_constants.LANGUAGE.withValue('ENGLISH'));
   }
 
   async fetchLanguage() {
-    const $ = await this.fetchPage(LANGUAGE_PAGE);
-    return $(`#a${_constants.LANGUAGE.forRequest().name}`).val();
+    const $ = await this.fetchPage(_constants.PAGES.LANGUAGE);
+    return $(`#a${_constants.LANGUAGE.withValue().name}`).val();
   }
 
   async fetchHumidityHC2() {
-    const $ = await this.fetchPage(INFO_SYSTEM_PAGE);
+    const $ = await this.fetchPage(_constants.PAGES.INFO.SYSTEM);
     const humidityText = $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text();
     const humdityStrValue = humidityText.trim().substr(0, humidityText.length - 1).replace(',', '.');
     return parseFloat(humdityStrValue);
@@ -422,4 +503,11 @@ class IsgClient {
 }
 
 exports.default = IsgClient;
-},{"./constants":"iJA9","./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x"}]},{},["f9KS"], null)
+exports.IsgClient = IsgClient;
+exports.VENTILATION = _constants.VENTILATION;
+exports.PAGES = _constants.PAGES;
+exports.HEATING = _constants.HEATING;
+exports.LANGUAGE = _constants.LANGUAGE;
+exports.COOLING = _constants.COOLING;
+exports.DHW = _constants.DHW;
+},{"./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x","./constants":"iJA9"}]},{},["f9KS"], null)

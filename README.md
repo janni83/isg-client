@@ -27,7 +27,7 @@ Therefor I do html and regex look ups to read values like i.e. if cooling is act
 ## Usage
 
 ```javascript
-const IsgClient = require('isg-client');
+import { IsgClient, VENTILATION } from 'isg-client'
 
 const isg = new IsgClient({
   username: '<USERNAME>',
@@ -41,7 +41,12 @@ isg.fetchHumidityHC2()
   .catch(console.error);
 
 // set day ventilation stage to 3
-isg.setVentilationDay(3)
+isg.ventilation().setDayStage(3)
   .then(() => console.log('ventilation day stage updated to 3'))
+  .catch(console.error);
+
+// set any parameter using setParameter
+isg.setParameter(VENTILATION.STAGE.NIGHT.withValue(0))
+  .then(() => console.log('ventilation night stage updated to 0'))
   .catch(console.error);
 ```
