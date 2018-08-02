@@ -104,6 +104,12 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   // Override the current require with this new one
   return newRequire;
 })({"Y/Oq":[function(require,module,exports) {
+/**
+ * @param object {object}
+ * @param propertyName {string}
+ * @param constructor {function}
+ * @returns {object}
+ */
 const lazyCreateModule = (object, propertyName, constructor) => {
   if (!object[propertyName]) {
     // eslint-disable-next-line no-param-reassign
@@ -115,6 +121,13 @@ const lazyCreateModule = (object, propertyName, constructor) => {
 module.exports = lazyCreateModule;
 },{}],"iJA9":[function(require,module,exports) {
 class Parameter {
+
+  /**
+   * @param id {string}
+   * @param [values] {array}
+   * @param [min] {number}
+   * @param [max] {number}
+   */
   constructor({
     id, values, min, max
   }) {
@@ -124,6 +137,10 @@ class Parameter {
     this.max = max;
   }
 
+  /**
+   * @param value {number|string}
+   * @returns {{name: string, value: string}}
+   */
   withValue(value) {
     if (this.values && this.values.indexOf(value) === -1) {
       throw new Error(`'${value}' is not a valid value for parameter ${this.id}`);
@@ -150,6 +167,9 @@ const PAGES = {
   },
   COOLING: {
     STANDARD_SETTING: '4,3,4'
+  },
+  DHW: {
+    STANDARD_SETTING: '4,1,1'
   },
   LANGUAGE: '5,3'
 };
@@ -274,22 +294,36 @@ class CoolingModule {
     this.isgClient = isgClient;
   }
 
+  /**
+   * @param enabled {boolean}
+   * @returns {Promise<object>}
+   */
   setEnabledHC2(enabled) {
     return this.isgClient.setParameter(COOLING.HC2.MODE.ENABLED.withValue(enabled ? '1' : '0'));
   }
 
+  /**
+   * @param percent {number}
+   * @returns {Promise<object>}
+   */
   setCapacity(percent) {
     return this.isgClient.setParameter(COOLING.STANDARD_SETTING.PERCENT_CAPACITY.withValue(percent));
   }
 
-  // cooling is active if operating status and processes contain 'COOLING'
+  /**
+   * cooling is active if operating status and processes contain 'COOLING'
+   * @returns {Promise<boolean>}
+   */
   async fetchIsActive() {
     const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
     const matchingElements = $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING);
     return matchingElements.length >= 2;
   }
 
-  // capacity value cannot be read from an html element; have to do a regex search on js code
+  /**
+   * capacity value cannot be read from an html element; have to do a regex search on js code
+   * @returns {Promise<number>}
+   */
   async fetchCapacity() {
     const $ = await this.isgClient.fetchPage(PAGES.COOLING.STANDARD_SETTING);
     const matches = REGEX_VALUE_CAPACITY.exec($.html())[1];
@@ -306,12 +340,45 @@ class VentilationModule {
     this.isgClient = isgClient;
   }
 
+  /**
+   * @param stage {number}
+   * @returns {Promise<object>}
+   */
   setDayStage(stage) {
     return this.isgClient.setParameter(VENTILATION.STAGE.DAY.withValue(stage));
   }
 }
 
 module.exports = VentilationModule;
+},{"../constants":"iJA9"}],"EenY":[function(require,module,exports) {
+const { DHW, PAGES } = require('../constants');
+
+const REGEX_VALUE_OUTPUT_SUMMER = new RegExp(`\\['${DHW.STANDARD_SETTING.DHW_OUTPUT_SUMMER.id}'\\]\\['val'\\]='([0-9]{2,3})'`);
+
+class DhwModule {
+  constructor(isgClient) {
+    this.isgClient = isgClient;
+  }
+
+  /**
+   * @param percent
+   * @returns {Promise<object>}
+   */
+  setOutputSummer(percent) {
+    return this.isgClient.setParameter(DHW.STANDARD_SETTING.DHW_OUTPUT_SUMMER.withValue(percent));
+  }
+
+  /**
+   * @returns {Promise<number>}
+   */
+  async fetchOutputSummer() {
+    const $ = await this.isgClient.fetchPage(PAGES.DHW.STANDARD_SETTING);
+    const matches = REGEX_VALUE_OUTPUT_SUMMER.exec($.html())[1];
+    return parseInt(matches, 10);
+  }
+}
+
+module.exports = DhwModule;
 },{"../constants":"iJA9"}],"f9KS":[function(require,module,exports) {
 const request = require('request-promise-native');
 const uuid = require('uuid/v4');
@@ -319,6 +386,7 @@ const cheerio = require('cheerio');
 const lazyCreateModule = require('./util');
 const CoolingModule = require('./modules/cooling');
 const VentilationModule = require('./modules/ventilation');
+const DhwModule = require('./modules/dhw');
 const {
   COOLING, DHW, HEATING, LANGUAGE, PAGES, VENTILATION
 } = require('./constants');
@@ -373,6 +441,13 @@ class IsgClient {
     return lazyCreateModule(this, 'ventilationModule', VentilationModule);
   }
 
+  /**
+   * @returns {DhwModule}
+   */
+  dhw() {
+    return lazyCreateModule(this, 'dhwModule', DhwModule);
+  }
+
   login() {
     const options = Object.assign({
       uri: this.url,
@@ -390,15 +465,24 @@ class IsgClient {
     });
   }
 
+  /**
+   * @returns {Promise<object>}
+   */
   switchLanguageToEnglish() {
     return this.setParameter(LANGUAGE.withValue('ENGLISH'));
   }
 
+  /**
+   * @returns {Promise<string>}
+   */
   async fetchLanguage() {
     const $ = await this.fetchPage(PAGES.LANGUAGE);
     return $(`#a${LANGUAGE.withValue().name}`).val();
   }
 
+  /**
+   * @returns {Promise<number>}
+   */
   async fetchHumidityHC2() {
     const $ = await this.fetchPage(PAGES.INFO.SYSTEM);
     const humidityText = $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text();
@@ -406,6 +490,11 @@ class IsgClient {
     return parseFloat(humdityStrValue);
   }
 
+  /**
+   * @param name {string}
+   * @param value {string|number}
+   * @returns {Promise<object>}
+   */
   async setParameter({ name, value }) {
     await this.verifyLoggedIn();
     const options = Object.assign({
@@ -421,6 +510,10 @@ class IsgClient {
     throw new Error(message);
   }
 
+  /**
+   * @param page {string}
+   * @returns {Promise<Cheerio>}
+   */
   async fetchPage(page) {
     const requestOpts = {
       url: this.url,
@@ -466,4 +559,4 @@ module.exports = {
   COOLING,
   DHW
 };
-},{"./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x","./constants":"iJA9"}]},{},["f9KS"], null)
+},{"./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x","./modules/dhw":"EenY","./constants":"iJA9"}]},{},["f9KS"], null)
