@@ -1,4 +1,4 @@
-import IsgClient from '../lib/isg-client';
+const { IsgClient } = require('../lib/isg-client');
 
 test('can create isg-client instance without constructor argument', () => {
   const client = new IsgClient();
