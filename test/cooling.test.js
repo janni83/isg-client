@@ -14,7 +14,7 @@ describe('cooling', () => {
     const isActive = await instance.fetchIsActive();
     expect(isActive).toEqual(false);
   });
-  it('fetches capacity', async () => {
+  it('fetches capacity of 76', async () => {
     const instance = new CoolingModule(new IsgClientMock({ coolingCapacity: 76 }));
     const capacity = await instance.fetchCapacity();
     expect(capacity).toEqual(76);
