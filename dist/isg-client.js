@@ -121,7 +121,6 @@ const lazyCreateModule = (object, propertyName, constructor) => {
 module.exports = lazyCreateModule;
 },{}],"iJA9":[function(require,module,exports) {
 class Parameter {
-
   /**
    * @param id {string}
    * @param [values] {array}
@@ -210,20 +209,30 @@ const HEATING = {
 };
 
 const COOLING = {
-  HC1: {
-    MODE: {
-      ENABLED: new Parameter({ id: '73', values: ['1', '0'] }),
-      TYPE: new Parameter({ id: '189', values: ['1', '0'] }),
-      TEMPERATURE: new Parameter({ id: '103' }),
-      HYST_ROOM_TEMP: new Parameter({ id: '107' })
-    }
-  },
   HC2: {
     MODE: {
       ENABLED: new Parameter({ id: '74', values: ['1', '0'] }),
       TYPE: new Parameter({ id: '190', values: ['1', '0'] }),
       TEMPERATURE: new Parameter({ id: '104' }),
       HYST_ROOM_TEMP: new Parameter({ id: '108' })
+    },
+    ROOM_TEMP: {
+      DAY: new Parameter({ id: '77', min: 10, max: 30 }),
+      NIGHT: new Parameter({ id: '81', min: 10, max: 30 }),
+      STANDBY: new Parameter({ id: '79', min: 10, max: 30 })
+    }
+  },
+  HC1: {
+    MODE: {
+      ENABLED: new Parameter({ id: '73', values: ['1', '0'] }),
+      TYPE: new Parameter({ id: '189', values: ['1', '0'] }),
+      TEMPERATURE: new Parameter({ id: '103' }),
+      HYST_ROOM_TEMP: new Parameter({ id: '107' })
+    },
+    ROOM_TEMP: {
+      DAY: new Parameter({ id: '76', min: 10, max: 30 }),
+      NIGHT: new Parameter({ id: '80', min: 10, max: 30 }),
+      STANDBY: new Parameter({ id: '78', min: 10, max: 30 })
     }
   },
   STANDARD_SETTING: {
@@ -287,6 +296,7 @@ module.exports = {
 const { COOLING, PAGES } = require('../constants');
 
 const TEXT_COOLING = 'COOLING';
+const TEXT_COMPRESSOR = 'COMPRESSOR';
 const REGEX_VALUE_CAPACITY = new RegExp(`\\['${COOLING.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);
 
 class CoolingModule {
@@ -316,8 +326,8 @@ class CoolingModule {
    */
   async fetchIsActive() {
     const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
-    const matchingElements = $('td').filter((i, elem) => $(elem).text().trim() === TEXT_COOLING);
-    return matchingElements.length >= 2;
+    const matchingElements = $('td').map((i, elem) => $(elem).text().trim()).filter((i, columnText) => [TEXT_COOLING, TEXT_COMPRESSOR].includes(columnText));
+    return matchingElements.length >= 3;
   }
 
   /**
@@ -407,6 +417,7 @@ const BASE_POST_OPTIONS = {
 };
 
 const TEXT_RELATIVE_HUMIDITY_HC2 = 'RELATIVE HUMIDITY HC2';
+const TEXT_HEATING_STAGE = 'HEATING STAGE';
 const DEFAULT_CONSTRUCTOR_ARGS = {
   url: 'http://servicewelt',
   version: '2.1'
@@ -477,7 +488,7 @@ class IsgClient {
    */
   async fetchLanguage() {
     const $ = await this.fetchPage(PAGES.LANGUAGE);
-    return $(`#a${LANGUAGE.withValue().name}`).val();
+    return $(`#aval${LANGUAGE.id}`).val();
   }
 
   /**
@@ -488,6 +499,15 @@ class IsgClient {
     const humidityText = $('td').filter((i, elem) => $(elem).text() === TEXT_RELATIVE_HUMIDITY_HC2).next().text();
     const humdityStrValue = humidityText.trim().substr(0, humidityText.length - 1).replace(',', '.');
     return parseFloat(humdityStrValue);
+  }
+
+  /**
+   * @returns {Promise<number>}
+   */
+  async fetchHeatingStage() {
+    const $ = await this.fetchPage(PAGES.INFO.SYSTEM);
+    const humidityText = $('td').filter((i, elem) => $(elem).text() === TEXT_HEATING_STAGE).next().text();
+    return parseFloat(humidityText.trim());
   }
 
   /**

@@ -1,9 +1,9 @@
 # isg-client
 An HTTP client for accessing the Internet Services Gateway (ISG) API to control heat pumps of Stiebel Eltron / Tecalor
 
-I use it at home to control my LWZ 504 heat pump depending on the amount of solar power
+I use it at home to control my __THZ/LWZ 504__ heat pump depending on the amount of solar power
 my solar collectors are generating, specifically to control cooling.
-It is only tested with the LWZ 504 and the ISG at version 2.1.69.
+It is only tested with the __THZ/LWZ 504__ and the ISG at version __2.1.69__.
 API parameters for other heat pumps or ISG version may vary.
 
 Use at your own risk! Invalid parameters may damage your heat pump.
@@ -27,7 +27,7 @@ Therefor I do html and regex look ups to read values like i.e. if cooling is act
 ## Usage
 
 ```javascript
-import { IsgClient, VENTILATION } from 'isg-client'
+const { IsgClient, VENTILATION } = require('isg-client');
 
 const isg = new IsgClient({
   username: '<USERNAME>',
