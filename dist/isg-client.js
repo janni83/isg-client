@@ -158,17 +158,20 @@ class Parameter {
 }
 
 const PAGES = {
-  INFO: {
-    SYSTEM: '1,0'
+  COOLING: {
+    STANDARD_SETTING: '4,3,4'
   },
   DIAGNOSIS: {
     STATUS: '2,0'
   },
-  COOLING: {
-    STANDARD_SETTING: '4,3,4'
-  },
   DHW: {
     STANDARD_SETTING: '4,1,1'
+  },
+  HEATING: {
+    STANDARD_SETTING: '4,0,4'
+  },
+  INFO: {
+    SYSTEM: '1,0'
   },
   LANGUAGE: '5,3'
 };
@@ -324,7 +327,7 @@ class CoolingModule {
    * cooling is active if operating status and processes contain 'COOLING'
    * @returns {Promise<boolean>}
    */
-  async fetchIsActive() {
+  async isActive() {
     const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
     const matchingElements = $('td').map((i, elem) => $(elem).text().trim()).filter((i, columnText) => [TEXT_COOLING, TEXT_COMPRESSOR].includes(columnText));
     return matchingElements.length >= 3;
@@ -334,7 +337,7 @@ class CoolingModule {
    * capacity value cannot be read from an html element; have to do a regex search on js code
    * @returns {Promise<number>}
    */
-  async fetchCapacity() {
+  async capacity() {
     const $ = await this.isgClient.fetchPage(PAGES.COOLING.STANDARD_SETTING);
     const matches = REGEX_VALUE_CAPACITY.exec($.html())[1];
     return parseInt(matches, 10);
@@ -364,10 +367,21 @@ module.exports = VentilationModule;
 const { DHW, PAGES } = require('../constants');
 
 const REGEX_VALUE_OUTPUT_SUMMER = new RegExp(`\\['${DHW.STANDARD_SETTING.DHW_OUTPUT_SUMMER.id}'\\]\\['val'\\]='([0-9]{2,3})'`);
+const REGEX_VALUE_OUTPUT_WINTER = new RegExp(`\\['${DHW.STANDARD_SETTING.DHW_OUTPUT_WINTER.id}'\\]\\['val'\\]='([0-9]{2,3})'`);
+const TEXT_DHW = 'DHW';
 
 class DhwModule {
   constructor(isgClient) {
     this.isgClient = isgClient;
+  }
+
+  /**
+   * Fetches whether DHW is active
+   */
+  async isActive() {
+    const $ = await this.isgClient.fetchPage(PAGES.DIAGNOSIS.STATUS);
+    const matchingElements = $('td').map((i, elem) => $(elem).text().trim()).filter((i, columnText) => [TEXT_DHW].includes(columnText));
+    return matchingElements.length >= 1;
   }
 
   /**
@@ -381,9 +395,26 @@ class DhwModule {
   /**
    * @returns {Promise<number>}
    */
-  async fetchOutputSummer() {
+  async outputSummer() {
     const $ = await this.isgClient.fetchPage(PAGES.DHW.STANDARD_SETTING);
     const matches = REGEX_VALUE_OUTPUT_SUMMER.exec($.html())[1];
+    return parseInt(matches, 10);
+  }
+
+  /**
+   * @param percent
+   * @returns {Promise<object>}
+   */
+  setOutputWinter(percent) {
+    return this.isgClient.setParameter(DHW.STANDARD_SETTING.DHW_OUTPUT_WINTER.withValue(percent));
+  }
+
+  /**
+   * @returns {Promise<number>}
+   */
+  async outputWinter() {
+    const $ = await this.isgClient.fetchPage(PAGES.DHW.STANDARD_SETTING);
+    const matches = REGEX_VALUE_OUTPUT_WINTER.exec($.html())[1];
     return parseInt(matches, 10);
   }
 }
