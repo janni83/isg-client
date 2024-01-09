@@ -1,13 +1,739 @@
-parcelRequire=function(e,r,n,t){var i="function"==typeof parcelRequire&&parcelRequire,o="function"==typeof require&&require;function u(n,t){if(!r[n]){if(!e[n]){var f="function"==typeof parcelRequire&&parcelRequire;if(!t&&f)return f(n,!0);if(i)return i(n,!0);if(o&&"string"==typeof n)return o(n);var c=new Error("Cannot find module '"+n+"'");throw c.code="MODULE_NOT_FOUND",c}p.resolve=function(r){return e[n][1][r]||r};var l=r[n]=new u.Module(n);e[n][0].call(l.exports,p,l,l.exports,this)}return r[n].exports;function p(e){return u(p.resolve(e))}}u.isParcelRequire=!0,u.Module=function(e){this.id=e,this.bundle=u,this.exports={}},u.modules=e,u.cache=r,u.parent=i,u.register=function(r,n){e[r]=[function(e,r){r.exports=n},{}]};for(var f=0;f<n.length;f++)u(n[f]);if(n.length){var c=u(n[n.length-1]);"object"==typeof exports&&"undefined"!=typeof module?module.exports=c:"function"==typeof define&&define.amd?define(function(){return c}):t&&(this[t]=c)}return u}({"Y/Oq":[function(require,module,exports) {
-const e=(e,o,n)=>(e[o]||(e[o]=new n(e)),e[o]);module.exports=e;
-},{}],"iJA9":[function(require,module,exports) {
-class i{constructor({id:i,values:n,min:T,max:m}){this.id=i,this.values=n,this.min=T,this.max=m}withValue(i){if(this.values&&-1===this.values.indexOf(i))throw new Error(`'${i}' is not a valid value for parameter ${this.id}`);if(null!=this.min&&i<this.min)throw new Error(`'${i}' is below min value of '${this.min}' for parameter ${this.id}`);if(null!=this.max&&i>this.max)throw new Error(`'${i}' is above max value of '${this.max}' for parameter ${this.id}`);return{name:`val${this.id}`,value:`${i}`}}}const n={COOLING:{STANDARD_SETTING:"4,3,4"},DIAGNOSIS:{STATUS:"2,0"},DHW:{STANDARD_SETTING:"4,1,1"},HEATING:{STANDARD_SETTING:"4,0,4"},INFO:{SYSTEM:"1,0"},LANGUAGE:"5,3"},T=new i({id:"spracheeinstellung",values:["DEUTSCH","ENGLISH"]}),m={HC1:{TEMPERATURE:{TEMP_DAY:new i({id:"5",min:10,max:30}),TEMP_NIGHT:new i({id:"7",min:10,max:30}),TEMP_STANDBY:new i({id:"58",min:10,max:30}),TEMP_MANUAL:new i({id:"54",min:10,max:30})}},HC2:{TEMPERATURE:{TEMP_DAY:new i({id:"6",min:10,max:30}),TEMP_NIGHT:new i({id:"8",min:10,max:30}),TEMP_STANDBY:new i({id:"59",min:10,max:30}),TEMP_MANUAL:new i({id:"55",min:10,max:30})}},STANDARD_SETTING:{PROP_COMP:new i({id:"431",min:0,max:10}),INTEGRAL_COMPONENT:new i({id:"432",min:0,max:500}),MAX_BH_STAGES:new i({id:"130",min:0,max:3}),MAX_FLOW_TEMP:new i({id:"21",min:10,max:75}),SUMMER_MODE:new i({id:"40",min:10,max:25}),HYST_SUMMER_MODE:new i({id:"133",min:1,max:7}),DUAL_MODE_HEAT:new i({id:"64",min:-20,max:10}),BOOSTER_TIMEOUT:new i({id:"131",min:0,max:60}),OUTSIDE_T_CORRECTION:new i({id:"134",min:-20,max:30}),SUPPR_TEMP_MEASURE:new i({id:"187",min:0,max:120}),HEATING_SYS_TEMP_SIZING:new i({id:"433",min:-25,max:5}),HEATING_SYS_OUTPUT_SIZING:new i({id:"434",min:40,max:100})}},E={HC2:{MODE:{ENABLED:new i({id:"74",values:["1","0"]}),TYPE:new i({id:"190",values:["1","0"]}),TEMPERATURE:new i({id:"104"}),HYST_ROOM_TEMP:new i({id:"108"})},ROOM_TEMP:{DAY:new i({id:"77",min:10,max:30}),NIGHT:new i({id:"81",min:10,max:30}),STANDBY:new i({id:"79",min:10,max:30})}},HC1:{MODE:{ENABLED:new i({id:"73",values:["1","0"]}),TYPE:new i({id:"189",values:["1","0"]}),TEMPERATURE:new i({id:"103"}),HYST_ROOM_TEMP:new i({id:"107"})},ROOM_TEMP:{DAY:new i({id:"76",min:10,max:30}),NIGHT:new i({id:"80",min:10,max:30}),STANDBY:new i({id:"78",min:10,max:30})}},STANDARD_SETTING:{PERCENT_CAPACITY:new i({id:"411",min:30,max:50}),HYST_FLOW_TEMP:new i({id:"105",min:0,max:3})}},e={STAGE:{DAY:new i({id:"82",values:["0","1","2","3"]}),NIGHT:new i({id:"83",values:["0","1","2","3"]}),STANDBY:new i({id:"84",values:["0","1","2","3"]}),MANUAL:new i({id:"88",values:["0","1","2","3"]}),PARTY:new i({id:"85",values:["0","1","2","3"]})},FLOW_RATE:{FAN_STAGE_VENT_AIR_1:new i({id:"91",min:10,max:300}),FAN_STAGE_VENT_AIR_2:new i({id:"92",min:80,max:300}),FAN_STAGE_VENT_AIR_3:new i({id:"93",min:80,max:300}),FAN_STAGE_EXTRACT_AIR_1:new i({id:"94",min:10,max:300}),FAN_STAGE_EXTRACT_AIR_2:new i({id:"95",min:10,max:300}),FAN_STAGE_EXTRACT_AIR_3:new i({id:"96",min:10,max:300})}},A={TEMPERATURE:{DAY:new i({id:"17",min:10,max:65}),NIGHT:new i({id:"161",min:10,max:65}),STANDBY:new i({id:"102",min:10,max:65}),MANUAL:new i({id:"101",min:10,max:65})},STANDARD_SETTING:{HYSTERESIS:new i({id:"60",min:2,max:10}),BOOSTER_TIMEOUT:new i({id:"111",min:0,max:360}),BOOSTER_T_ACTIVATE:new i({id:"112",min:-10,max:10}),PASTEURISATION:new i({id:"109",min:1,max:30}),MAX_DHW_HTG_DURATION:new i({id:"62",min:6,max:12}),PASTEUR_TEMP:new i({id:"110",min:10,max:65}),DHW_BOOSTER_STAGE:new i({id:"113",min:1,max:3}),DHW_BUFFER_MODE:new i({id:"114",values:["0","1"]}),MAX_FLOW_TEMP:new i({id:"115",min:10,max:75}),DHW_ECO:new i({id:"116",values:["0","1"]}),DHW_OUTPUT_SUMMER:new i({id:"420",min:30,max:100}),DHW_OUTPUT_WINTER:new i({id:"421",min:30,max:100}),INTEGRAL_SENSOR:new i({id:"422",values:["0","1"]}),SECOND_DHW_CYLINDER:new i({id:"423",values:["0","1"]})}};module.exports={PAGES:n,LANGUAGE:T,HEATING:m,COOLING:E,VENTILATION:e,DHW:A};
-},{}],"qQCB":[function(require,module,exports) {
-const{COOLING:t,PAGES:e}=require("../constants"),i="COOLING",s="COMPRESSOR",a=new RegExp(`\\['${t.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);class n{constructor(t){this.isgClient=t}setEnabledHC2(e){return this.isgClient.setParameter(t.HC2.MODE.ENABLED.withValue(e?"1":"0"))}setCapacity(e){return this.isgClient.setParameter(t.STANDARD_SETTING.PERCENT_CAPACITY.withValue(e))}async isActive(){const t=await this.isgClient.fetchPage(e.DIAGNOSIS.STATUS);return t("td").map((e,i)=>t(i).text().trim()).filter((t,e)=>[i,s].includes(e)).length>=3}async capacity(){const t=await this.isgClient.fetchPage(e.COOLING.STANDARD_SETTING),i=a.exec(t.html())[1];return parseInt(i,10)}}module.exports=n;
-},{"../constants":"iJA9"}],"Qy/x":[function(require,module,exports) {
-const{VENTILATION:t}=require("../constants");class e{constructor(t){this.isgClient=t}setDayStage(e){return this.isgClient.setParameter(t.STAGE.DAY.withValue(e))}}module.exports=e;
-},{"../constants":"iJA9"}],"EenY":[function(require,module,exports) {
-const{DHW:t,PAGES:e}=require("../constants"),i=new RegExp(`\\['${t.STANDARD_SETTING.DHW_OUTPUT_SUMMER.id}'\\]\\['val'\\]='([0-9]{2,3})'`),s=new RegExp(`\\['${t.STANDARD_SETTING.DHW_OUTPUT_WINTER.id}'\\]\\['val'\\]='([0-9]{2,3})'`),T="DHW";class n{constructor(t){this.isgClient=t}async isActive(){const t=await this.isgClient.fetchPage(e.DIAGNOSIS.STATUS);return t("td").map((e,i)=>t(i).text().trim()).filter((t,e)=>[T].includes(e)).length>=1}setOutputSummer(e){return this.isgClient.setParameter(t.STANDARD_SETTING.DHW_OUTPUT_SUMMER.withValue(e))}async outputSummer(){const t=await this.isgClient.fetchPage(e.DHW.STANDARD_SETTING),s=i.exec(t.html())[1];return parseInt(s,10)}setOutputWinter(e){return this.isgClient.setParameter(t.STANDARD_SETTING.DHW_OUTPUT_WINTER.withValue(e))}async outputWinter(){const t=await this.isgClient.fetchPage(e.DHW.STANDARD_SETTING),i=s.exec(t.html())[1];return parseInt(i,10)}}module.exports=n;
-},{"../constants":"iJA9"}],"f9KS":[function(require,module,exports) {
-const e=require("request-promise-native"),t=require("uuid/v4"),s=require("cheerio"),i=require("./util"),r=require("./modules/cooling"),a=require("./modules/ventilation"),n=require("./modules/dhw"),{COOLING:o,DHW:u,HEATING:h,LANGUAGE:l,PAGES:g,VENTILATION:c}=require("./constants"),d=e.defaults({forever:!0,jar:!0}),v={Cookie:`PHPSESSID=${t()}`,Connection:"keep-alive"},m={method:"POST",headers:v},w="RELATIVE HUMIDITY HC2",E="HEATING STAGE",f={url:"http://servicewelt",version:"2.1"};class I{constructor({url:e,username:t,password:s,version:i}=f){this.url=e,this.username=t,this.password=s,this.version=i,this.languageSet=!1,this.baseSaveOptions=Object.assign({url:`${this.url}/save.php`,json:!0},m)}cooling(){return i(this,"coolingModule",r)}ventilation(){return i(this,"ventilationModule",a)}dhw(){return i(this,"dhwModule",n)}login(){const e=Object.assign({uri:this.url,form:{make:"send",user:this.username,pass:this.password}},m);return d(e).then(()=>{this.session={date:new Date}}).catch(()=>{this.session=null})}switchLanguageToEnglish(){return this.setParameter(l.withValue("ENGLISH"))}async fetchLanguage(){return(await this.fetchPage(g.LANGUAGE))(`#aval${l.id}`).val()}async fetchHumidityHC2(){const e=await this.fetchPage(g.INFO.SYSTEM),t=e("td").filter((t,s)=>e(s).text()===w).next().text(),s=t.trim().substr(0,t.length-1).replace(",",".");return parseFloat(s)}async fetchHeatingStage(){const e=await this.fetchPage(g.INFO.SYSTEM),t=e("td").filter((t,s)=>e(s).text()===E).next().text();return parseFloat(t.trim())}async setParameter({name:e,value:t}){await this.verifyLoggedIn();const s=Object.assign({form:{data:JSON.stringify([{name:e,value:t}])}},this.baseSaveOptions),{success:i,message:r}=await d(s);if(i)return r;throw new Error(r)}async fetchPage(e){const t={url:this.url,headers:v,qs:{s:e}};await this.verifyLoggedIn(),await this.verifyEnglishLanguage();const i=await d.get(t);return s.load(i)}verifyLoggedIn(){return this.username||this.password?this.session?Promise.resolve():this.login():Promise.resolve()}verifyEnglishLanguage(){return this.languageSet?Promise.resolve():this.switchLanguageToEnglish().then(()=>{this.languageSet=!0}).catch(e=>{throw new Error(`failed to set language to english: ${e}`)})}}module.exports={IsgClient:I,VENTILATION:c,PAGES:g,HEATING:h,LANGUAGE:l,COOLING:o,DHW:u};
-},{"./util":"Y/Oq","./modules/cooling":"qQCB","./modules/ventilation":"Qy/x","./modules/dhw":"EenY","./constants":"iJA9"}]},{},["f9KS"], null)
+var $kIu9n$uuid = require("uuid");
+var $kIu9n$cheerio = require("cheerio");
+
+
+
+var $2429056a9cd033ad$exports = {};
+/**
+ * @param object {object}
+ * @param propertyName {string}
+ * @param constructor {function}
+ * @returns {object}
+ */ const $2429056a9cd033ad$var$lazyCreateModule = (object, propertyName, constructor)=>{
+    if (!object[propertyName]) // eslint-disable-next-line no-param-reassign
+    object[propertyName] = new constructor(object);
+    return object[propertyName];
+};
+$2429056a9cd033ad$exports = $2429056a9cd033ad$var$lazyCreateModule;
+
+
+var $65b728b2397734f8$exports = {};
+var $2c7bf509a8ddec7b$exports = {};
+class $2c7bf509a8ddec7b$var$Parameter {
+    /**
+   * @param id {string}
+   * @param [values] {array}
+   * @param [min] {number}
+   * @param [max] {number}
+   */ constructor({ id: id, values: values, min: min, max: max }){
+        this.id = id;
+        this.values = values;
+        this.min = min;
+        this.max = max;
+    }
+    /**
+   * @param value {number|string}
+   * @returns {{name: string, value: string}}
+   */ withValue(value) {
+        if (this.values && this.values.indexOf(value) === -1) throw new Error(`'${value}' is not a valid value for parameter ${this.id}`);
+        if (this.min != null && value < this.min) throw new Error(`'${value}' is below min value of '${this.min}' for parameter ${this.id}`);
+        if (this.max != null && value > this.max) throw new Error(`'${value}' is above max value of '${this.max}' for parameter ${this.id}`);
+        return {
+            name: `val${this.id}`,
+            value: `${value}`
+        };
+    }
+}
+const $2c7bf509a8ddec7b$var$PAGES = {
+    COOLING: {
+        STANDARD_SETTING: "4,3,4"
+    },
+    DIAGNOSIS: {
+        STATUS: "2,0"
+    },
+    DHW: {
+        STANDARD_SETTING: "4,1,1"
+    },
+    HEATING: {
+        STANDARD_SETTING: "4,0,4"
+    },
+    INFO: {
+        SYSTEM: "1,0"
+    },
+    LANGUAGE: "5,3"
+};
+const $2c7bf509a8ddec7b$var$LANGUAGE = new $2c7bf509a8ddec7b$var$Parameter({
+    id: "spracheeinstellung",
+    values: [
+        "DEUTSCH",
+        "ENGLISH"
+    ]
+});
+const $2c7bf509a8ddec7b$var$HEATING = {
+    HC1: {
+        TEMPERATURE: {
+            TEMP_DAY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "5",
+                min: 10,
+                max: 30
+            }),
+            TEMP_NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "7",
+                min: 10,
+                max: 30
+            }),
+            TEMP_STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "58",
+                min: 10,
+                max: 30
+            }),
+            TEMP_MANUAL: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "54",
+                min: 10,
+                max: 30
+            })
+        }
+    },
+    HC2: {
+        TEMPERATURE: {
+            TEMP_DAY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "6",
+                min: 10,
+                max: 30
+            }),
+            TEMP_NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "8",
+                min: 10,
+                max: 30
+            }),
+            TEMP_STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "59",
+                min: 10,
+                max: 30
+            }),
+            TEMP_MANUAL: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "55",
+                min: 10,
+                max: 30
+            })
+        }
+    },
+    STANDARD_SETTING: {
+        PROP_COMP: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "431",
+            min: 0,
+            max: 10
+        }),
+        INTEGRAL_COMPONENT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "432",
+            min: 0,
+            max: 500
+        }),
+        MAX_BH_STAGES: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "130",
+            min: 0,
+            max: 3
+        }),
+        MAX_FLOW_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "21",
+            min: 10,
+            max: 75
+        }),
+        SUMMER_MODE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "40",
+            min: 10,
+            max: 25
+        }),
+        HYST_SUMMER_MODE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "133",
+            min: 1,
+            max: 7
+        }),
+        DUAL_MODE_HEAT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "64",
+            min: -20,
+            max: 10
+        }),
+        BOOSTER_TIMEOUT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "131",
+            min: 0,
+            max: 60
+        }),
+        OUTSIDE_T_CORRECTION: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "134",
+            min: -20,
+            max: 30
+        }),
+        SUPPR_TEMP_MEASURE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "187",
+            min: 0,
+            max: 120
+        }),
+        HEATING_SYS_TEMP_SIZING: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "433",
+            min: -25,
+            max: 5
+        }),
+        HEATING_SYS_OUTPUT_SIZING: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "434",
+            min: 40,
+            max: 100
+        })
+    }
+};
+const $2c7bf509a8ddec7b$var$COOLING = {
+    HC2: {
+        MODE: {
+            ENABLED: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "74",
+                values: [
+                    "1",
+                    "0"
+                ]
+            }),
+            TYPE: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "190",
+                values: [
+                    "1",
+                    "0"
+                ]
+            }),
+            TEMPERATURE: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "104"
+            }),
+            HYST_ROOM_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "108"
+            })
+        },
+        ROOM_TEMP: {
+            DAY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "77",
+                min: 10,
+                max: 30
+            }),
+            NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "81",
+                min: 10,
+                max: 30
+            }),
+            STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "79",
+                min: 10,
+                max: 30
+            })
+        }
+    },
+    HC1: {
+        MODE: {
+            ENABLED: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "73",
+                values: [
+                    "1",
+                    "0"
+                ]
+            }),
+            TYPE: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "189",
+                values: [
+                    "1",
+                    "0"
+                ]
+            }),
+            TEMPERATURE: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "103"
+            }),
+            HYST_ROOM_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "107"
+            })
+        },
+        ROOM_TEMP: {
+            DAY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "76",
+                min: 10,
+                max: 30
+            }),
+            NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "80",
+                min: 10,
+                max: 30
+            }),
+            STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+                id: "78",
+                min: 10,
+                max: 30
+            })
+        }
+    },
+    STANDARD_SETTING: {
+        PERCENT_CAPACITY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "411",
+            min: 30,
+            max: 50
+        }),
+        HYST_FLOW_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "105",
+            min: 0,
+            max: 3
+        })
+    }
+};
+const $2c7bf509a8ddec7b$var$VENTILATION = {
+    STAGE: {
+        DAY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "82",
+            values: [
+                "0",
+                "1",
+                "2",
+                "3"
+            ]
+        }),
+        NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "83",
+            values: [
+                "0",
+                "1",
+                "2",
+                "3"
+            ]
+        }),
+        STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "84",
+            values: [
+                "0",
+                "1",
+                "2",
+                "3"
+            ]
+        }),
+        MANUAL: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "88",
+            values: [
+                "0",
+                "1",
+                "2",
+                "3"
+            ]
+        }),
+        PARTY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "85",
+            values: [
+                "0",
+                "1",
+                "2",
+                "3"
+            ]
+        })
+    },
+    FLOW_RATE: {
+        FAN_STAGE_VENT_AIR_1: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "91",
+            min: 10,
+            max: 300
+        }),
+        FAN_STAGE_VENT_AIR_2: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "92",
+            min: 80,
+            max: 300
+        }),
+        FAN_STAGE_VENT_AIR_3: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "93",
+            min: 80,
+            max: 300
+        }),
+        FAN_STAGE_EXTRACT_AIR_1: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "94",
+            min: 10,
+            max: 300
+        }),
+        FAN_STAGE_EXTRACT_AIR_2: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "95",
+            min: 10,
+            max: 300
+        }),
+        FAN_STAGE_EXTRACT_AIR_3: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "96",
+            min: 10,
+            max: 300
+        })
+    }
+};
+const $2c7bf509a8ddec7b$var$DHW = {
+    TEMPERATURE: {
+        DAY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "17",
+            min: 10,
+            max: 65
+        }),
+        NIGHT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "161",
+            min: 10,
+            max: 65
+        }),
+        STANDBY: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "102",
+            min: 10,
+            max: 65
+        }),
+        MANUAL: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "101",
+            min: 10,
+            max: 65
+        })
+    },
+    STANDARD_SETTING: {
+        HYSTERESIS: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "60",
+            min: 2,
+            max: 10
+        }),
+        BOOSTER_TIMEOUT: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "111",
+            min: 0,
+            max: 360
+        }),
+        BOOSTER_T_ACTIVATE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "112",
+            min: -10,
+            max: 10
+        }),
+        PASTEURISATION: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "109",
+            min: 1,
+            max: 30
+        }),
+        MAX_DHW_HTG_DURATION: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "62",
+            min: 6,
+            max: 12
+        }),
+        PASTEUR_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "110",
+            min: 10,
+            max: 65
+        }),
+        DHW_BOOSTER_STAGE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "113",
+            min: 1,
+            max: 3
+        }),
+        DHW_BUFFER_MODE: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "114",
+            values: [
+                "0",
+                "1"
+            ]
+        }),
+        MAX_FLOW_TEMP: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "115",
+            min: 10,
+            max: 75
+        }),
+        DHW_ECO: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "116",
+            values: [
+                "0",
+                "1"
+            ]
+        }),
+        DHW_OUTPUT_SUMMER: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "420",
+            min: 30,
+            max: 100
+        }),
+        DHW_OUTPUT_WINTER: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "421",
+            min: 30,
+            max: 100
+        }),
+        INTEGRAL_SENSOR: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "422",
+            values: [
+                "0",
+                "1"
+            ]
+        }),
+        SECOND_DHW_CYLINDER: new $2c7bf509a8ddec7b$var$Parameter({
+            id: "423",
+            values: [
+                "0",
+                "1"
+            ]
+        })
+    }
+};
+$2c7bf509a8ddec7b$exports = {
+    PAGES: $2c7bf509a8ddec7b$var$PAGES,
+    LANGUAGE: $2c7bf509a8ddec7b$var$LANGUAGE,
+    HEATING: $2c7bf509a8ddec7b$var$HEATING,
+    COOLING: $2c7bf509a8ddec7b$var$COOLING,
+    VENTILATION: $2c7bf509a8ddec7b$var$VENTILATION,
+    DHW: $2c7bf509a8ddec7b$var$DHW
+};
+
+
+var $65b728b2397734f8$require$COOLING = $2c7bf509a8ddec7b$exports.COOLING;
+var $65b728b2397734f8$require$PAGES = $2c7bf509a8ddec7b$exports.PAGES;
+const $65b728b2397734f8$var$TEXT_COOLING = "COOLING";
+const $65b728b2397734f8$var$TEXT_COMPRESSOR = "COMPRESSOR";
+const $65b728b2397734f8$var$REGEX_VALUE_CAPACITY = new RegExp(`\\['${$65b728b2397734f8$require$COOLING.STANDARD_SETTING.PERCENT_CAPACITY.id}'\\]\\['val'\\]='([0-9]{2})'`);
+class $65b728b2397734f8$var$CoolingModule {
+    constructor(isgClient){
+        this.isgClient = isgClient;
+    }
+    /**
+   * @param enabled {boolean}
+   * @returns {Promise<object>}
+   */ setEnabledHC2(enabled) {
+        return this.isgClient.setParameter($65b728b2397734f8$require$COOLING.HC2.MODE.ENABLED.withValue(enabled ? "1" : "0"));
+    }
+    /**
+   * @param percent {number}
+   * @returns {Promise<object>}
+   */ setCapacity(percent) {
+        return this.isgClient.setParameter($65b728b2397734f8$require$COOLING.STANDARD_SETTING.PERCENT_CAPACITY.withValue(percent));
+    }
+    /**
+   * cooling is active if operating status and processes contain 'COOLING'
+   * @returns {Promise<boolean>}
+   */ async isActive() {
+        const $ = await this.isgClient.fetchPage($65b728b2397734f8$require$PAGES.DIAGNOSIS.STATUS);
+        const matchingElements = $("td").map((i, elem)=>$(elem).text().trim()).filter((i, columnText)=>[
+                $65b728b2397734f8$var$TEXT_COOLING,
+                $65b728b2397734f8$var$TEXT_COMPRESSOR
+            ].includes(columnText));
+        return matchingElements.length >= 3;
+    }
+    /**
+   * capacity value cannot be read from an html element; have to do a regex search on js code
+   * @returns {Promise<number>}
+   */ async capacity() {
+        const $ = await this.isgClient.fetchPage($65b728b2397734f8$require$PAGES.COOLING.STANDARD_SETTING);
+        const matches = $65b728b2397734f8$var$REGEX_VALUE_CAPACITY.exec($.html())[1];
+        return parseInt(matches, 10);
+    }
+}
+$65b728b2397734f8$exports = $65b728b2397734f8$var$CoolingModule;
+
+
+var $a793c53df8f2f3d5$exports = {};
+
+var $a793c53df8f2f3d5$require$VENTILATION = $2c7bf509a8ddec7b$exports.VENTILATION;
+class $a793c53df8f2f3d5$var$VentilationModule {
+    constructor(isgClient){
+        this.isgClient = isgClient;
+    }
+    /**
+   * @param stage {number}
+   * @returns {Promise<object>}
+   */ setDayStage(stage) {
+        return this.isgClient.setParameter($a793c53df8f2f3d5$require$VENTILATION.STAGE.DAY.withValue(stage));
+    }
+}
+$a793c53df8f2f3d5$exports = $a793c53df8f2f3d5$var$VentilationModule;
+
+
+var $2a353d1676489305$exports = {};
+
+var $2a353d1676489305$require$DHW = $2c7bf509a8ddec7b$exports.DHW;
+var $2a353d1676489305$require$PAGES = $2c7bf509a8ddec7b$exports.PAGES;
+const $2a353d1676489305$var$REGEX_VALUE_OUTPUT_SUMMER = new RegExp(`\\['${$2a353d1676489305$require$DHW.STANDARD_SETTING.DHW_OUTPUT_SUMMER.id}'\\]\\['val'\\]='([0-9]{2,3})'`);
+const $2a353d1676489305$var$REGEX_VALUE_OUTPUT_WINTER = new RegExp(`\\['${$2a353d1676489305$require$DHW.STANDARD_SETTING.DHW_OUTPUT_WINTER.id}'\\]\\['val'\\]='([0-9]{2,3})'`);
+const $2a353d1676489305$var$TEXT_DHW = "DHW";
+class $2a353d1676489305$var$DhwModule {
+    constructor(isgClient){
+        this.isgClient = isgClient;
+    }
+    /**
+   * Fetches whether DHW is active
+   */ async isActive() {
+        const $ = await this.isgClient.fetchPage($2a353d1676489305$require$PAGES.DIAGNOSIS.STATUS);
+        const matchingElements = $("td").map((i, elem)=>$(elem).text().trim()).filter((i, columnText)=>[
+                $2a353d1676489305$var$TEXT_DHW
+            ].includes(columnText));
+        return matchingElements.length >= 1;
+    }
+    /**
+   * @param percent
+   * @returns {Promise<object>}
+   */ setOutputSummer(percent) {
+        return this.isgClient.setParameter($2a353d1676489305$require$DHW.STANDARD_SETTING.DHW_OUTPUT_SUMMER.withValue(percent));
+    }
+    /**
+   * @returns {Promise<number>}
+   */ async outputSummer() {
+        const $ = await this.isgClient.fetchPage($2a353d1676489305$require$PAGES.DHW.STANDARD_SETTING);
+        const matches = $2a353d1676489305$var$REGEX_VALUE_OUTPUT_SUMMER.exec($.html())[1];
+        return parseInt(matches, 10);
+    }
+    /**
+   * @param percent
+   * @returns {Promise<object>}
+   */ setOutputWinter(percent) {
+        return this.isgClient.setParameter($2a353d1676489305$require$DHW.STANDARD_SETTING.DHW_OUTPUT_WINTER.withValue(percent));
+    }
+    /**
+   * @returns {Promise<number>}
+   */ async outputWinter() {
+        const $ = await this.isgClient.fetchPage($2a353d1676489305$require$PAGES.DHW.STANDARD_SETTING);
+        const matches = $2a353d1676489305$var$REGEX_VALUE_OUTPUT_WINTER.exec($.html())[1];
+        return parseInt(matches, 10);
+    }
+}
+$2a353d1676489305$exports = $2a353d1676489305$var$DhwModule;
+
+
+
+var $969a7c14ee2ae0ae$require$COOLING = $2c7bf509a8ddec7b$exports.COOLING;
+var $969a7c14ee2ae0ae$require$DHW = $2c7bf509a8ddec7b$exports.DHW;
+var $969a7c14ee2ae0ae$require$HEATING = $2c7bf509a8ddec7b$exports.HEATING;
+var $969a7c14ee2ae0ae$require$LANGUAGE = $2c7bf509a8ddec7b$exports.LANGUAGE;
+var $969a7c14ee2ae0ae$require$PAGES = $2c7bf509a8ddec7b$exports.PAGES;
+var $969a7c14ee2ae0ae$require$VENTILATION = $2c7bf509a8ddec7b$exports.VENTILATION;
+const $969a7c14ee2ae0ae$var$BASE_HEADERS = {
+    Cookie: `PHPSESSID=${$kIu9n$uuid.v4()}`,
+    Connection: "keep-alive"
+};
+const $969a7c14ee2ae0ae$var$BASE_POST_OPTIONS = {
+    method: "POST",
+    credentials: "same-origin",
+    headers: $969a7c14ee2ae0ae$var$BASE_HEADERS
+};
+const $969a7c14ee2ae0ae$var$TEXT_RELATIVE_HUMIDITY_HC2 = "RELATIVE HUMIDITY HC2";
+const $969a7c14ee2ae0ae$var$TEXT_HEATING_STAGE = "HEATING STAGE";
+const $969a7c14ee2ae0ae$var$DEFAULT_CONSTRUCTOR_ARGS = {
+    url: "http://servicewelt",
+    version: "2.1"
+};
+class $969a7c14ee2ae0ae$var$IsgClient {
+    constructor({ url: url, username: username, password: password, version: version } = $969a7c14ee2ae0ae$var$DEFAULT_CONSTRUCTOR_ARGS){
+        this.url = url;
+        this.username = username;
+        this.password = password;
+        this.version = version;
+        this.languageSet = false;
+        this.baseSaveOptions = Object.assign({
+            url: `${this.url}/save.php`,
+            json: true
+        }, $969a7c14ee2ae0ae$var$BASE_POST_OPTIONS);
+    }
+    /**
+   * @returns {CoolingModule}
+   */ cooling() {
+        return $2429056a9cd033ad$exports(this, "coolingModule", $65b728b2397734f8$exports);
+    }
+    /**
+   * @returns {VentilationModule}
+   */ ventilation() {
+        return $2429056a9cd033ad$exports(this, "ventilationModule", $a793c53df8f2f3d5$exports);
+    }
+    /**
+   * @returns {DhwModule}
+   */ dhw() {
+        return $2429056a9cd033ad$exports(this, "dhwModule", $2a353d1676489305$exports);
+    }
+    login() {
+        const formData = new FormData();
+        formData.append("make", "send");
+        formData.append("user", this.username);
+        formData.append("pass", this.password);
+        const options = {
+            body: formData,
+            credentials: "same-origin",
+            ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
+        };
+        return fetch(this.url, options).then((response)=>{
+            this.session = {
+                date: new Date()
+            };
+        }).catch(()=>{
+            this.session = null;
+        });
+    }
+    /**
+   * @returns {Promise<object>}
+   */ switchLanguageToEnglish() {
+        return this.setParameter($969a7c14ee2ae0ae$require$LANGUAGE.withValue("ENGLISH"));
+    }
+    /**
+   * @returns {Promise<string>}
+   */ async fetchLanguage() {
+        const $ = await this.fetchPage($969a7c14ee2ae0ae$require$PAGES.LANGUAGE);
+        return $(`#aval${$969a7c14ee2ae0ae$require$LANGUAGE.id}`).val();
+    }
+    /**
+   * @returns {Promise<number>}
+   */ async fetchHumidityHC2() {
+        const $ = await this.fetchPage($969a7c14ee2ae0ae$require$PAGES.INFO.SYSTEM);
+        const humidityText = $("td").filter((i, elem)=>$(elem).text() === $969a7c14ee2ae0ae$var$TEXT_RELATIVE_HUMIDITY_HC2).next().text();
+        const humdityStrValue = humidityText.trim().substr(0, humidityText.length - 1).replace(",", ".");
+        return parseFloat(humdityStrValue);
+    }
+    /**
+   * @returns {Promise<number>}
+   */ async fetchHeatingStage() {
+        const $ = await this.fetchPage($969a7c14ee2ae0ae$require$PAGES.INFO.SYSTEM);
+        const humidityText = $("td").filter((i, elem)=>$(elem).text() === $969a7c14ee2ae0ae$var$TEXT_HEATING_STAGE).next().text();
+        return parseFloat(humidityText.trim());
+    }
+    /**
+   * @param name {string}
+   * @param value {string|number}
+   * @returns {Promise<object>}
+   */ async setParameter({ name: name, value: value }) {
+        await this.verifyLoggedIn();
+        const formData = new FormData();
+        formData.append("data", JSON.stringify([
+            {
+                name: name,
+                value: value
+            }
+        ]));
+        const options = {
+            body: formData,
+            ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
+        };
+        const response = await fetch(this.baseSaveOptions.url, options);
+        if (response.ok) return response.statusText;
+        throw new Error(response.statusText);
+    }
+    /**
+   * @param page {string}
+   * @returns {Promise<Cheerio>}
+   */ async fetchPage(page) {
+        const requestOpts = {
+            headers: $969a7c14ee2ae0ae$var$BASE_HEADERS,
+            credentials: "same-origin"
+        };
+        await this.verifyLoggedIn();
+        await this.verifyEnglishLanguage();
+        const html = await fetch(this.url + "?" + new URLSearchParams({
+            s: page
+        }), requestOpts).then((response)=>response.text());
+        return $kIu9n$cheerio.load(html);
+    }
+    verifyLoggedIn() {
+        if (!this.username && !this.password) return Promise.resolve();
+        if (this.session) return Promise.resolve();
+        return this.login();
+    }
+    verifyEnglishLanguage() {
+        if (this.languageSet) return Promise.resolve();
+        return this.switchLanguageToEnglish().then(()=>{
+            this.languageSet = true;
+        }).catch((error)=>{
+            throw new Error(`failed to set language to english: ${error}`);
+        });
+    }
+}
+module.exports = {
+    IsgClient: $969a7c14ee2ae0ae$var$IsgClient,
+    VENTILATION: $969a7c14ee2ae0ae$require$VENTILATION,
+    PAGES: $969a7c14ee2ae0ae$require$PAGES,
+    HEATING: $969a7c14ee2ae0ae$require$HEATING,
+    LANGUAGE: $969a7c14ee2ae0ae$require$LANGUAGE,
+    COOLING: $969a7c14ee2ae0ae$require$COOLING,
+    DHW: $969a7c14ee2ae0ae$require$DHW
+};
+
+
