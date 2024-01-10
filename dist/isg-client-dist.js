@@ -612,10 +612,11 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         this.password = password;
         this.version = version;
         this.languageSet = false;
-        this.baseSaveOptions = Object.assign({
+        this.baseSaveOptions = {
             url: `${this.url}/save.php`,
-            json: true
-        }, $969a7c14ee2ae0ae$var$BASE_POST_OPTIONS);
+            json: true,
+            ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
+        };
     }
     /**
    * @returns {CoolingModule}
@@ -642,7 +643,7 @@ class $969a7c14ee2ae0ae$var$IsgClient {
             credentials: "same-origin",
             ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
         };
-        return fetch(this.url, options).then((response)=>{
+        return fetch(this.url, options).then(()=>{
             this.session = {
                 date: new Date()
             };
@@ -677,18 +678,23 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         return parseFloat(humidityText.trim());
     }
     /**
-   * @param name {string}
-   * @param value {string|number}
+   * @param param {name: string, value: string|number}
    * @returns {Promise<object>}
    */ async setParameter({ name: name, value: value }) {
-        await this.verifyLoggedIn();
-        const formData = new FormData();
-        formData.append("data", JSON.stringify([
+        return this.setParameters([
             {
                 name: name,
                 value: value
             }
-        ]));
+        ]);
+    }
+    /**
+   * @param params [{name, value}] list of parameter name / value pairs
+   * @returns {Promise<object>}
+   */ async setParameters(params) {
+        await this.verifyLoggedIn();
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(params));
         const options = {
             body: formData,
             ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
@@ -707,9 +713,9 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         };
         await this.verifyLoggedIn();
         await this.verifyEnglishLanguage();
-        const html = await fetch(this.url + "?" + new URLSearchParams({
+        const html = await fetch(`${this.url}?${new URLSearchParams({
             s: page
-        }), requestOpts).then((response)=>response.text());
+        })}`, requestOpts).then((response)=>response.text());
         return $kIu9n$cheerio.load(html);
     }
     verifyLoggedIn() {
