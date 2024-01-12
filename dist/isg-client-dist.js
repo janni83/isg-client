@@ -610,6 +610,7 @@ var $969a7c14ee2ae0ae$require$HEATING = $2c7bf509a8ddec7b$exports.HEATING;
 var $969a7c14ee2ae0ae$require$LANGUAGE = $2c7bf509a8ddec7b$exports.LANGUAGE;
 var $969a7c14ee2ae0ae$require$PAGES = $2c7bf509a8ddec7b$exports.PAGES;
 var $969a7c14ee2ae0ae$require$VENTILATION = $2c7bf509a8ddec7b$exports.VENTILATION;
+var $969a7c14ee2ae0ae$require$ENERGY_MANAGEMENT = $2c7bf509a8ddec7b$exports.ENERGY_MANAGEMENT;
 const $969a7c14ee2ae0ae$var$BASE_HEADERS = {
     Cookie: `PHPSESSID=${$kIu9n$uuid.v4()}`,
     Connection: "keep-alive"
@@ -759,7 +760,8 @@ module.exports = {
     HEATING: $969a7c14ee2ae0ae$require$HEATING,
     LANGUAGE: $969a7c14ee2ae0ae$require$LANGUAGE,
     COOLING: $969a7c14ee2ae0ae$require$COOLING,
-    DHW: $969a7c14ee2ae0ae$require$DHW
+    DHW: $969a7c14ee2ae0ae$require$DHW,
+    ENERGY_MANAGEMENT: $969a7c14ee2ae0ae$require$ENERGY_MANAGEMENT
 };
 
 
