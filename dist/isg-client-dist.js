@@ -462,13 +462,33 @@ const $2c7bf509a8ddec7b$var$DHW = {
         })
     }
 };
+const $2c7bf509a8ddec7b$var$ENERGY_MANAGEMENT = {
+    // ENABLE_EMI: new Parameter({id: "val60302", values: ["0", "1"]}),
+    // BUFFER_TYPE: new Parameter({id: "val60317", values: ["0", "1", "2"]}),
+    UPPER_TEMP_HK1: new $2c7bf509a8ddec7b$var$Parameter({
+        id: "val60310",
+        min: 20,
+        max: 50
+    }),
+    UPPER_TEMP_HK2: new $2c7bf509a8ddec7b$var$Parameter({
+        id: "val60311",
+        min: 20,
+        max: 30
+    }),
+    UPPER_TEMP_DH: new $2c7bf509a8ddec7b$var$Parameter({
+        id: "val60312",
+        min: 40,
+        max: 65
+    })
+};
 $2c7bf509a8ddec7b$exports = {
     PAGES: $2c7bf509a8ddec7b$var$PAGES,
     LANGUAGE: $2c7bf509a8ddec7b$var$LANGUAGE,
     HEATING: $2c7bf509a8ddec7b$var$HEATING,
     COOLING: $2c7bf509a8ddec7b$var$COOLING,
     VENTILATION: $2c7bf509a8ddec7b$var$VENTILATION,
-    DHW: $2c7bf509a8ddec7b$var$DHW
+    DHW: $2c7bf509a8ddec7b$var$DHW,
+    ENERGY_MANAGEMENT: $2c7bf509a8ddec7b$var$ENERGY_MANAGEMENT
 };
 
 
