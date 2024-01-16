@@ -633,6 +633,8 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         this.password = password;
         this.version = version;
         this.languageSet = false;
+        this.loginTries = 0;
+        this.loginPromise = null;
         this.baseSaveOptions = {
             url: `${this.url}/save.php`,
             json: true,
@@ -655,6 +657,14 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         return $2429056a9cd033ad$exports(this, "dhwModule", $2a353d1676489305$exports);
     }
     login() {
+        if (this.loginTries > 2) {
+            this.session = null;
+            this.loginTries = 0;
+            this.loginPromise = null;
+            throw new Error("too many login tries");
+        }
+        if (this.loginPromise) return this.loginPromise;
+        this.loginTries += 1;
         const formData = new FormData();
         formData.append("make", "send");
         formData.append("user", this.username);
@@ -664,13 +674,17 @@ class $969a7c14ee2ae0ae$var$IsgClient {
             credentials: "same-origin",
             ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
         };
-        return fetch(this.url, options).then(()=>{
+        this.loginPromise = fetch(this.url, options).then(()=>{
             this.session = {
                 date: new Date()
             };
+            this.loginTries = 0;
         }).catch(()=>{
             this.session = null;
+        }).finally(()=>{
+            this.loginPromise = null;
         });
+        return this.loginPromise;
     }
     /**
    * @returns {Promise<object>}
@@ -721,8 +735,16 @@ class $969a7c14ee2ae0ae$var$IsgClient {
             ...$969a7c14ee2ae0ae$var$BASE_POST_OPTIONS
         };
         const response = await fetch(this.baseSaveOptions.url, options);
-        if (response.ok) return response.statusText;
-        throw new Error(response.statusText);
+        if (!response.ok) throw new Error(response.statusText);
+        return response.text().then((resultText)=>{
+            try {
+                return JSON.parse(resultText);
+            } catch (e) {
+                // assume session not valid anymore, retry with new session
+                this.session = null;
+                return this.setParameters(params);
+            }
+        });
     }
     /**
    * @param page {string}
@@ -737,6 +759,11 @@ class $969a7c14ee2ae0ae$var$IsgClient {
         const html = await fetch(`${this.url}?${new URLSearchParams({
             s: page
         })}`, requestOpts).then((response)=>response.text());
+        if (html.indexOf("loginscreen") >= 0) {
+            // assume session not valid anymore, retry with new session
+            this.session = null;
+            return this.fetchPage(page);
+        }
         return $kIu9n$cheerio.load(html);
     }
     verifyLoggedIn() {
