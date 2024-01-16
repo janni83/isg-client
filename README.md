@@ -28,7 +28,7 @@ My current use case is to make my heat pump aware to low and high energy prices 
 ## Usage
 
 ```javascript
-const { IsgClient, HEATING } = require("isg-client");
+const { IsgClient, DHW, HEATING } = require("isg-client");
 
 const isg = new IsgClient({
   username: "<USERNAME>",
@@ -51,8 +51,8 @@ isg
 // set multiple parameters at once using setParameters
 isg
   .setParameters([
-    HEATING.HC1.TEMPERATURE.DAY.withValue(21),
-    HEATING.HC2.TEMPERATURE.DAY.withValue(21),
+    HEATING.HC1.TEMPERATURE.TEMP_DAY.withValue(21),
+    HEATING.HC2.TEMPERATURE.TEMP_DAY.withValue(21),
     DHW.TEMPERATURE.DAY.withValue(45),
   ])
   .then(() =>
